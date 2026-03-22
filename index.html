@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymMove — Workout Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">GymMove<span> Tracker</span></div>
+    <div class="subtitle" id="headerSubtitle">Select a Movement</div>
+  </div>
+</header>
+
+<!-- Movement Selector -->
+<div class="movement-bar" id="movementBar">
+  <button class="move-btn active" data-move="burpee">
+    <span class="move-icon">&#128293;</span>
+    <span class="move-name">Burpees</span>
+  </button>
+  <button class="move-btn" data-move="squat">
+    <span class="move-icon">&#129461;</span>
+    <span class="move-name">Squats</span>
+  </button>
+  <button class="move-btn" data-move="pushup">
+    <span class="move-icon">&#128170;</span>
+    <span class="move-name">Push-ups</span>
+  </button>
+  <button class="move-btn" data-move="jumpingjack">
+    <span class="move-icon">&#9889;</span>
+    <span class="move-name">Jumping Jacks</span>
+  </button>
+  <button class="move-btn" data-move="situp">
+    <span class="move-icon">&#128257;</span>
+    <span class="move-name">Sit-ups</span>
+  </button>
+</div>
+
+<div class="main">
+
+  <!-- ── LEFT: Camera ── -->
+  <div class="camera-panel">
+    <div class="video-wrapper" id="videoWrapper">
+      <video id="videoEl" playsinline autoplay muted></video>
+      <canvas id="poseCanvas"></canvas>
+      <div class="phase-badge" id="phaseBadge">WAITING FOR CAMERA</div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+      <button class="cam-toggle-btn" id="camToggleBtn">Flip Camera</button>
+    </div>
+    <div class="status-bar">
+      <button id="startBtn">Start Session</button>
+      <button id="stopBtn" disabled>Stop</button>
+      <button id="resetBtn" disabled>Reset</button>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Stats ── -->
+  <div class="stats-panel">
+
+    <!-- Rep Counter -->
+    <div class="card" id="repCard">
+      <div class="card-label" id="repLabel">Reps This Session</div>
+      <div class="big-number" id="repCount">0</div>
+    </div>
+
+    <!-- Timer -->
+    <div class="card">
+      <div class="card-label">Session Time</div>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+    </div>
+
+    <!-- Pace -->
+    <div class="card">
+      <div class="card-label">Pace</div>
+      <div class="pace-display" id="paceDisplay">--</div>
+      <div class="pace-unit" id="paceUnit">REPS / MIN</div>
+    </div>
+
+    <!-- Goal -->
+    <div class="card">
+      <div class="goal-section">
+        <div class="goal-row">
+          <span class="goal-label">Session Goal</span>
+          <span class="goal-value"><span id="goalProgress">0</span> / <span id="goalTarget">50</span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+          <span class="goal-label">Set Goal:</span>
+          <input id="goalInput" type="number" value="50" min="1" max="9999"
+            style="width:70px; background:#111; border:1px solid #2a2a2a; color:#e0e0e0;
+                   padding:4px 8px; border-radius:4px; font-family:Rajdhani,sans-serif;
+                   font-size:0.9rem;" />
+          <button class="manual-btn" style="width:auto; padding:4px 12px;" id="setGoalBtn">Set</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensitivity -->
+    <div class="card">
+      <div class="card-label" style="margin-bottom:12px;">Detection Sensitivity</div>
+      <div class="sensitivity-grid">
+        <div class="sens-item">
+          <label id="thresh1Label">Active Threshold</label>
+          <input type="range" id="downThresh" min="1" max="99" value="68" step="1" />
+          <div class="sens-val" id="downThreshVal">0.68</div>
+        </div>
+        <div class="sens-item">
+          <label id="thresh2Label">Return Threshold</label>
+          <input type="range" id="upThresh" min="1" max="99" value="48" step="1" />
+          <div class="sens-val" id="upThreshVal">0.48</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="manual-btn" id="resetThreshBtn">Reset to Defaults</button>
+      </div>
+    </div>
+
+    <!-- Manual -->
+    <div class="card">
+      <div class="card-label" style="margin-bottom:10px;">Manual Adjust</div>
+      <div style="display:flex; gap:8px;">
+        <button class="manual-btn" id="manualAddBtn">+ Add Rep</button>
+        <button class="manual-btn" id="manualSubBtn">- Remove Rep</button>
+      </div>
+    </div>
+
+    <!-- Session History -->
+    <div class="card">
+      <div class="card-label" style="margin-bottom:10px;">Session History</div>
+      <div class="history-list" id="historyList">
+        <div class="empty-state">No sessions yet</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Celebration Overlay -->
+<div id="celebration">
+  <div class="celeb-title" id="celebTitle">MILESTONE!</div>
+  <div class="celeb-sub" id="celebSub">Keep pushing!</div>
+  <button class="celeb-close" onclick="closeCelebration()">LET'S GO</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
