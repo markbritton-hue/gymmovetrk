@@ -223,6 +223,24 @@ header .subtitle {
   border: 1px solid var(--border);
 }
 
+#recordBtn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+#recordBtn.recording {
+  background: #6b0000;
+  color: #fff;
+  border-color: #ff2020;
+  animation: pulse-rec 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-rec {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+
 /* ── Stats Panel ── */
 .stats-panel {
   width: 300px;

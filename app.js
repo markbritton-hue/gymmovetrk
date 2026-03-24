@@ -413,6 +413,69 @@ function renderHistory() {
 
 renderHistory();
 
+// ── Recording ────────────────────────────────────────────────
+let mediaRecorder   = null;
+let recordedChunks  = [];
+let isRecording     = false;
+let compositeCanvas = null;
+let compositeCtx    = null;
+let compositeRAF    = null;
+
+const recordBtn = document.getElementById('recordBtn');
+
+function startRecording() {
+  const w = videoEl.videoWidth  || 640;
+  const h = videoEl.videoHeight || 480;
+
+  compositeCanvas        = document.createElement('canvas');
+  compositeCanvas.width  = w;
+  compositeCanvas.height = h;
+  compositeCtx           = compositeCanvas.getContext('2d');
+
+  function drawComposite() {
+    compositeCtx.drawImage(videoEl,    0, 0, w, h);
+    compositeCtx.drawImage(poseCanvas, 0, 0, w, h);
+    compositeRAF = requestAnimationFrame(drawComposite);
+  }
+  drawComposite();
+
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+    ? 'video/webm;codecs=vp9'
+    : 'video/webm';
+
+  recordedChunks = [];
+  mediaRecorder  = new MediaRecorder(compositeCanvas.captureStream(30), { mimeType });
+
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    cancelAnimationFrame(compositeRAF);
+    const blob = new Blob(recordedChunks, { type: mimeType });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `gymmove-${currentMovementKey}-${Date.now()}.webm`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  mediaRecorder.start();
+  isRecording              = true;
+  recordBtn.textContent    = '⏹ Stop Rec';
+  recordBtn.classList.add('recording');
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  isRecording           = false;
+  recordBtn.textContent = 'Record';
+  recordBtn.classList.remove('recording');
+}
+
+recordBtn.addEventListener('click', () => {
+  if (!isRecording) startRecording();
+  else stopRecording();
+});
+
 // ── MediaPipe Pose ───────────────────────────────────────────
 const pose = new Pose({
   locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
