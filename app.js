@@ -424,6 +424,7 @@ let compositeRAF    = null;
 const recordBtn = document.getElementById('recordBtn');
 
 function startRecording() {
+  recMsg('REC: starting...');
   try {
     const w = videoEl.videoWidth  || 640;
     const h = videoEl.videoHeight || 480;
@@ -447,14 +448,16 @@ function startRecording() {
       null;
 
     if (!mimeType) {
-      alert('Recording is not supported in this browser.');
+      recMsg('REC ERROR: format not supported');
       cancelAnimationFrame(compositeRAF);
       return;
     }
 
+    recMsg('REC: got mimeType ' + mimeType);
+
     const stream = compositeCanvas.captureStream(30);
     if (!stream || stream.getTracks().length === 0) {
-      alert('Could not capture canvas stream. Try a different browser.');
+      recMsg('REC ERROR: canvas stream failed');
       cancelAnimationFrame(compositeRAF);
       return;
     }
@@ -464,13 +467,13 @@ function startRecording() {
 
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onerror = (e) => {
-      alert('Recording error: ' + (e.error ? e.error.message : 'unknown'));
+      recMsg('REC ERROR: ' + (e.error ? e.error.message : 'unknown'));
       stopRecording();
     };
     mediaRecorder.onstop = () => {
       cancelAnimationFrame(compositeRAF);
       if (recordedChunks.length === 0) {
-        alert('No data was recorded.');
+        recMsg('REC ERROR: no data recorded');
         return;
       }
       const blob = new Blob(recordedChunks, { type: mimeType });
@@ -492,7 +495,7 @@ function startRecording() {
 
   } catch (err) {
     cancelAnimationFrame(compositeRAF);
-    alert('Recording failed: ' + err.message);
+    recMsg('REC ERROR: ' + err.message);
   }
 }
 
@@ -507,6 +510,10 @@ recordBtn.addEventListener('click', () => {
   if (!isRecording) startRecording();
   else stopRecording();
 });
+
+function recMsg(text) {
+  phaseBadge.textContent = text;
+}
 
 // ── MediaPipe Pose ───────────────────────────────────────────
 const pose = new Pose({
