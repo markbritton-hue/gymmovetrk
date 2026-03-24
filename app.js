@@ -424,53 +424,76 @@ let compositeRAF    = null;
 const recordBtn = document.getElementById('recordBtn');
 
 function startRecording() {
-  const w = videoEl.videoWidth  || 640;
-  const h = videoEl.videoHeight || 480;
+  try {
+    const w = videoEl.videoWidth  || 640;
+    const h = videoEl.videoHeight || 480;
 
-  compositeCanvas        = document.createElement('canvas');
-  compositeCanvas.width  = w;
-  compositeCanvas.height = h;
-  compositeCtx           = compositeCanvas.getContext('2d');
+    compositeCanvas        = document.createElement('canvas');
+    compositeCanvas.width  = w;
+    compositeCanvas.height = h;
+    compositeCtx           = compositeCanvas.getContext('2d');
 
-  function drawComposite() {
-    compositeCtx.drawImage(videoEl,    0, 0, w, h);
-    compositeCtx.drawImage(poseCanvas, 0, 0, w, h);
-    compositeRAF = requestAnimationFrame(drawComposite);
-  }
-  drawComposite();
+    function drawComposite() {
+      compositeCtx.drawImage(videoEl,    0, 0, w, h);
+      compositeCtx.drawImage(poseCanvas, 0, 0, w, h);
+      compositeRAF = requestAnimationFrame(drawComposite);
+    }
+    drawComposite();
 
-  const mimeType =
-    MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' :
-    MediaRecorder.isTypeSupported('video/webm')            ? 'video/webm' :
-    MediaRecorder.isTypeSupported('video/mp4')             ? 'video/mp4' :
-    null;
+    const mimeType =
+      MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' :
+      MediaRecorder.isTypeSupported('video/webm')            ? 'video/webm' :
+      MediaRecorder.isTypeSupported('video/mp4')             ? 'video/mp4' :
+      null;
 
-  if (!mimeType) {
-    alert('Recording is not supported in this browser.');
+    if (!mimeType) {
+      alert('Recording is not supported in this browser.');
+      cancelAnimationFrame(compositeRAF);
+      return;
+    }
+
+    const stream = compositeCanvas.captureStream(30);
+    if (!stream || stream.getTracks().length === 0) {
+      alert('Could not capture canvas stream. Try a different browser.');
+      cancelAnimationFrame(compositeRAF);
+      return;
+    }
+
+    recordedChunks = [];
+    mediaRecorder  = new MediaRecorder(stream, { mimeType });
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onerror = (e) => {
+      alert('Recording error: ' + (e.error ? e.error.message : 'unknown'));
+      stopRecording();
+    };
+    mediaRecorder.onstop = () => {
+      cancelAnimationFrame(compositeRAF);
+      if (recordedChunks.length === 0) {
+        alert('No data was recorded.');
+        return;
+      }
+      const blob = new Blob(recordedChunks, { type: mimeType });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      const ext  = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
+      a.download = `gymmove-${currentMovementKey}-${Date.now()}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    mediaRecorder.start(1000); // collect data every 1s
+    isRecording              = true;
+    recordBtn.textContent    = '⏹ Stop Rec';
+    recordBtn.classList.add('recording');
+
+  } catch (err) {
     cancelAnimationFrame(compositeRAF);
-    return;
+    alert('Recording failed: ' + err.message);
   }
-
-  recordedChunks = [];
-  mediaRecorder  = new MediaRecorder(compositeCanvas.captureStream(30), { mimeType });
-
-  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
-  mediaRecorder.onstop = () => {
-    cancelAnimationFrame(compositeRAF);
-    const blob = new Blob(recordedChunks, { type: mimeType });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    const ext  = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
-    a.download = `gymmove-${currentMovementKey}-${Date.now()}.${ext}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  mediaRecorder.start();
-  isRecording              = true;
-  recordBtn.textContent    = '⏹ Stop Rec';
-  recordBtn.classList.add('recording');
 }
 
 function stopRecording() {
