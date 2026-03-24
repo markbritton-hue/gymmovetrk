@@ -439,9 +439,17 @@ function startRecording() {
   }
   drawComposite();
 
-  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-    ? 'video/webm;codecs=vp9'
-    : 'video/webm';
+  const mimeType =
+    MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' :
+    MediaRecorder.isTypeSupported('video/webm')            ? 'video/webm' :
+    MediaRecorder.isTypeSupported('video/mp4')             ? 'video/mp4' :
+    null;
+
+  if (!mimeType) {
+    alert('Recording is not supported in this browser.');
+    cancelAnimationFrame(compositeRAF);
+    return;
+  }
 
   recordedChunks = [];
   mediaRecorder  = new MediaRecorder(compositeCanvas.captureStream(30), { mimeType });
@@ -453,7 +461,8 @@ function startRecording() {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = `gymmove-${currentMovementKey}-${Date.now()}.webm`;
+    const ext  = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
+    a.download = `gymmove-${currentMovementKey}-${Date.now()}.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
   };
