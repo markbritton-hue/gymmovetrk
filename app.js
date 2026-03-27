@@ -4,7 +4,6 @@
 //   activeThreshold     → metric crosses this to enter ACTIVE state
 //   neutralThreshold    → metric crosses this to return to NEUTRAL → REP counted
 //   metricDir           → 'high' = metric goes HIGH when active (burpees/squats/pushups/situps)
-//                          'low'  = metric goes LOW when active (jumping jacks)
 //   checkVisibility(lm) → returns true if key joints are visible
 //   labels              → badge text for each state
 //   sliderConfig        → default slider ranges and values
@@ -73,36 +72,6 @@ const MOVEMENTS = {
     },
   },
 
-  jumpingjack: {
-    name: 'Jumping Jacks',
-    paceUnit: 'JACKS / MIN',
-    // Metric: wristY - shoulderY
-    // Arms DOWN (at sides): wrists lower than shoulders → positive value
-    // Arms UP (overhead):   wrists above shoulders    → negative value
-    // Rep counted when arms return DOWN after going UP
-    getMetric: (lm) => {
-      const wristY   = (lm[15].y + lm[16].y) / 2;
-      const shoulderY = (lm[11].y + lm[12].y) / 2;
-      return wristY - shoulderY;
-    },
-    // metricDir 'low': metric goes LOW (negative) when active (arms up)
-    activeThreshold: -0.05,
-    neutralThreshold: 0.10,
-    metricDir: 'low',
-    checkVisibility: (lm) => lm[15].visibility > 0.4 && lm[16].visibility > 0.4,
-    highlightJoints: [11, 12, 15, 16],
-    labels: {
-      ready:   'ARMS DOWN — JACK!',
-      active:  'ARMS UP!',
-      rep:     'REP! ARMS DOWN!',
-      noBody:  'STEP BACK — FULL BODY NEEDED',
-    },
-    sliderConfig: {
-      s1: { min: 1, max: 30, value: 5,  label: 'Arms Up Sensitivity' },
-      s2: { min: 1, max: 40, value: 10, label: 'Arms Down Sensitivity' },
-    },
-  },
-
   situp: {
     name: 'Sit-ups',
     paceUnit: 'SIT-UPS / MIN',
@@ -125,6 +94,25 @@ const MOVEMENTS = {
     },
   },
 };
+
+// ── Apply saved settings from setup page ─────────────────────
+(function applySavedSettings() {
+  const saved = JSON.parse(localStorage.getItem('gymMoveSettings') || '{}');
+  Object.entries(saved).forEach(([key, ovr]) => {
+    const m = MOVEMENTS[key];
+    if (!m) return;
+    if (ovr.name)     m.name     = ovr.name;
+    if (ovr.paceUnit) m.paceUnit = ovr.paceUnit;
+    if (ovr.labels)   Object.assign(m.labels, ovr.labels);
+    if (ovr.sliderConfig) {
+      if (ovr.sliderConfig.s1) Object.assign(m.sliderConfig.s1, ovr.sliderConfig.s1);
+      if (ovr.sliderConfig.s2) Object.assign(m.sliderConfig.s2, ovr.sliderConfig.s2);
+    }
+    // Sync runtime thresholds from (possibly updated) sliderConfig
+    m.activeThreshold  = m.sliderConfig.s1.value / 100;
+    m.neutralThreshold = m.sliderConfig.s2.value / 100;
+  });
+})();
 
 // ── Constants ──────────────────────────────────────────────
 const MILESTONES = [10, 25, 50, 100, 200];
@@ -218,14 +206,10 @@ function updateSliderDisplays() {
   document.getElementById('upThreshVal').textContent   = s2val.toFixed(2);
 
   // Apply to active thresholds
-  if (currentMovement.metricDir === 'high') {
-    activeThreshold  = s1val;
-    neutralThreshold = s2val;
-  } else {
-    // 'low': active threshold is negative (arms up for jacks) or lower value
-    activeThreshold  = -s1val;
-    neutralThreshold = s2val;
-  }
+  // For both 'high' and 'low' movements the thresholds are positive Y-position fractions.
+  // 'metricDir' controls which direction crossing the threshold triggers the state change.
+  activeThreshold  = s1val;
+  neutralThreshold = s2val;
 }
 
 // Sliders
@@ -237,6 +221,12 @@ document.getElementById('resetThreshBtn').addEventListener('click', () => {
   document.getElementById('downThresh').value = cfg.s1.value;
   document.getElementById('upThresh').value   = cfg.s2.value;
   updateSliderDisplays();
+});
+
+// Sync movement bar button text with (possibly overridden) names
+document.querySelectorAll('.move-btn').forEach(btn => {
+  const m = MOVEMENTS[btn.dataset.move];
+  if (m) btn.querySelector('.move-name').textContent = m.name;
 });
 
 // Init with burpee

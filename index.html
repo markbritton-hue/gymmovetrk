@@ -14,9 +14,21 @@
 <body>
 
 <header>
-  <div>
-    <div class="logo">GymMove<span> Tracker</span></div>
-    <div class="subtitle" id="headerSubtitle">Select a Movement</div>
+  <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+    <div>
+      <div class="logo">GymMove<span> Tracker</span></div>
+      <div class="subtitle" id="headerSubtitle">Select a Movement</div>
+    </div>
+    <a href="setup.html" style="
+      display:inline-flex; align-items:center; padding:6px 14px;
+      background:var(--card); border:1px solid var(--border); border-radius:6px;
+      color:var(--muted); font-family:'Rajdhani',sans-serif; font-size:0.8rem;
+      font-weight:600; letter-spacing:1.5px; text-decoration:none;
+      text-transform:uppercase; transition:border-color 0.2s, color 0.2s;"
+      onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+      &#9881; Settings
+    </a>
   </div>
 </header>
 
@@ -34,11 +46,7 @@
     <span class="move-icon">&#128170;</span>
     <span class="move-name">Push-ups</span>
   </button>
-  <button class="move-btn" data-move="jumpingjack">
-    <span class="move-icon">&#9889;</span>
-    <span class="move-name">Jumping Jacks</span>
-  </button>
-  <button class="move-btn" data-move="situp">
+<button class="move-btn" data-move="situp">
     <span class="move-icon">&#128257;</span>
     <span class="move-name">Sit-ups</span>
   </button>

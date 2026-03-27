@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymMove — Settings</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="setup.css" />
+</head>
+<body>
+
+<header>
+  <div style="display:flex; align-items:center; gap:20px; width:100%;">
+    <a href="index.html" class="back-btn">&#8592; Back</a>
+    <div>
+      <div class="logo">GymMove<span> Settings</span></div>
+      <div class="subtitle">Movement Configuration</div>
+    </div>
+  </div>
+</header>
+
+<div class="setup-toolbar">
+  <button class="save-btn" id="saveBtn">Save Settings</button>
+  <button class="reset-all-btn" id="resetAllBtn">Reset All to Defaults</button>
+</div>
+
+<div class="setup-container" id="settingsContainer">
+  <!-- Cards injected by setup.js -->
+</div>
+
+<div class="setup-toolbar setup-toolbar--bottom">
+  <button class="save-btn" id="saveBtnBottom">Save Settings</button>
+  <button class="reset-all-btn" id="resetAllBtnBottom">Reset All to Defaults</button>
+</div>
+
+<script src="setup.js"></script>
+</body>
+</html>
