@@ -158,22 +158,28 @@ function buildForm() {
                 value="${esc(s1.label)}" maxlength="40" />
             </div>
             <div class="settings-field">
-              <label for="s1val_${key}">Default</label>
+              <label for="s1val_${key}">Default &mdash; <span id="s1display_${key}" class="thresh-live">${s1.value}</span></label>
+              <input type="range" id="s1slider_${key}"
+                min="${s1.min}" max="${s1.max}" value="${s1.value}" step="1"
+                class="thresh-slider" data-num="s1val_${key}" data-display="s1display_${key}" />
               <input type="number" id="s1val_${key}"
                 data-key="${key}" data-field="sliderConfig.s1.value"
-                value="${s1.value}" min="1" max="99" />
+                value="${s1.value}" min="1" max="99"
+                class="thresh-number" data-slider="s1slider_${key}" data-display="s1display_${key}" />
             </div>
             <div class="settings-field">
               <label for="s1min_${key}">Min</label>
               <input type="number" id="s1min_${key}"
                 data-key="${key}" data-field="sliderConfig.s1.min"
-                value="${s1.min}" min="1" max="99" />
+                value="${s1.min}" min="1" max="99"
+                data-slider="s1slider_${key}" data-range-end="min" />
             </div>
             <div class="settings-field">
               <label for="s1max_${key}">Max</label>
               <input type="number" id="s1max_${key}"
                 data-key="${key}" data-field="sliderConfig.s1.max"
-                value="${s1.max}" min="1" max="99" />
+                value="${s1.max}" min="1" max="99"
+                data-slider="s1slider_${key}" data-range-end="max" />
             </div>
 
             <div class="settings-field">
@@ -183,22 +189,28 @@ function buildForm() {
                 value="${esc(s2.label)}" maxlength="40" />
             </div>
             <div class="settings-field">
-              <label for="s2val_${key}">Default</label>
+              <label for="s2val_${key}">Default &mdash; <span id="s2display_${key}" class="thresh-live">${s2.value}</span></label>
+              <input type="range" id="s2slider_${key}"
+                min="${s2.min}" max="${s2.max}" value="${s2.value}" step="1"
+                class="thresh-slider" data-num="s2val_${key}" data-display="s2display_${key}" />
               <input type="number" id="s2val_${key}"
                 data-key="${key}" data-field="sliderConfig.s2.value"
-                value="${s2.value}" min="1" max="99" />
+                value="${s2.value}" min="1" max="99"
+                class="thresh-number" data-slider="s2slider_${key}" data-display="s2display_${key}" />
             </div>
             <div class="settings-field">
               <label for="s2min_${key}">Min</label>
               <input type="number" id="s2min_${key}"
                 data-key="${key}" data-field="sliderConfig.s2.min"
-                value="${s2.min}" min="1" max="99" />
+                value="${s2.min}" min="1" max="99"
+                data-slider="s2slider_${key}" data-range-end="min" />
             </div>
             <div class="settings-field">
               <label for="s2max_${key}">Max</label>
               <input type="number" id="s2max_${key}"
                 data-key="${key}" data-field="sliderConfig.s2.max"
-                value="${s2.max}" min="1" max="99" />
+                value="${s2.max}" min="1" max="99"
+                data-slider="s2slider_${key}" data-range-end="max" />
             </div>
           </div>
         </div>
@@ -206,6 +218,45 @@ function buildForm() {
       </div>
     `;
     container.appendChild(card);
+  });
+
+  // Wire slider ↔ number input sync
+  container.querySelectorAll('.thresh-slider').forEach(slider => {
+    const numEl     = document.getElementById(slider.dataset.num);
+    const displayEl = document.getElementById(slider.dataset.display);
+
+    slider.addEventListener('input', () => {
+      numEl.value = slider.value;
+      displayEl.textContent = slider.value;
+    });
+  });
+
+  container.querySelectorAll('.thresh-number').forEach(numEl => {
+    const slider    = document.getElementById(numEl.dataset.slider);
+    const displayEl = document.getElementById(numEl.dataset.display);
+
+    numEl.addEventListener('input', () => {
+      slider.value = numEl.value;
+      displayEl.textContent = numEl.value;
+    });
+  });
+
+  // Keep slider min/max in sync when range inputs change
+  container.querySelectorAll('[data-range-end]').forEach(rangeInput => {
+    const slider = document.getElementById(rangeInput.dataset.slider);
+    const end    = rangeInput.dataset.rangeEnd; // 'min' or 'max'
+
+    rangeInput.addEventListener('input', () => {
+      slider[end] = rangeInput.value;
+      // Clamp slider value if it's now out of range
+      if (parseInt(slider.value) < parseInt(slider.min)) slider.value = slider.min;
+      if (parseInt(slider.value) > parseInt(slider.max)) slider.value = slider.max;
+      // Sync number input and display too
+      const numEl     = document.getElementById(slider.dataset.num);
+      const displayEl = document.getElementById(slider.dataset.display);
+      if (numEl)     numEl.value = slider.value;
+      if (displayEl) displayEl.textContent = slider.value;
+    });
   });
 
   // Wire reset-per-movement buttons

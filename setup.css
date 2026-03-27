@@ -203,6 +203,22 @@
   border-color: var(--accent);
 }
 
+.thresh-slider {
+  width: 100%;
+  accent-color: var(--accent);
+  margin: 4px 0 2px;
+}
+
+.thresh-number {
+  width: 100%;
+}
+
+.thresh-live {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
 .thresh-note {
   font-size: 0.7rem;
   color: var(--muted);
