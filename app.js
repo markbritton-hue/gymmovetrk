@@ -33,21 +33,29 @@ const MOVEMENTS = {
   squat: {
     name: 'Squats',
     paceUnit: 'SQUATS / MIN',
-    getMetric: (lm) => (lm[23].y + lm[24].y) / 2,
-    activeThreshold: 0.62,
-    neutralThreshold: 0.47,
+    // Metric: (hip_y - knee_y) + 0.5 offset so values stay in 0–1 range.
+    // Standing: ~0.30 (hips above knees). Parallel: ~0.50. Below parallel: >0.50.
+    getMetric: (lm) => {
+      const hipY  = (lm[23].y + lm[24].y) / 2;
+      const kneeY = (lm[25].y + lm[26].y) / 2;
+      return hipY - kneeY + 0.5;
+    },
+    activeThreshold: 0.52,
+    neutralThreshold: 0.38,
     metricDir: 'high',
-    checkVisibility: (lm) => lm[23].visibility > 0.5 && lm[24].visibility > 0.5,
+    checkVisibility: (lm) =>
+      lm[23].visibility > 0.5 && lm[24].visibility > 0.5 &&
+      lm[25].visibility > 0.5 && lm[26].visibility > 0.5,
     highlightJoints: [23, 24, 25, 26],
     labels: {
       ready:   'STANDING — SQUAT!',
-      active:  'SQUAT — GO DEEP!',
+      active:  'BELOW PARALLEL — GOOD DEPTH!',
       rep:     'REP! STAND UP!',
       noBody:  'STEP BACK — FULL BODY NEEDED',
     },
     sliderConfig: {
-      s1: { min: 45, max: 85, value: 62, label: 'Squat Depth' },
-      s2: { min: 25, max: 60, value: 47, label: 'Stand Height' },
+      s1: { min: 48, max: 65, value: 52, label: 'Parallel Depth' },
+      s2: { min: 25, max: 48, value: 38, label: 'Stand Return'   },
     },
   },
 

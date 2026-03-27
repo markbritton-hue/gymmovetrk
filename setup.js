@@ -17,13 +17,13 @@ const DEFAULTS = {
     name: 'Squats',
     labels: {
       ready:  'STANDING — SQUAT!',
-      active: 'SQUAT — GO DEEP!',
+      active: 'BELOW PARALLEL — GOOD DEPTH!',
       rep:    'REP! STAND UP!',
       noBody: 'STEP BACK — FULL BODY NEEDED',
     },
     sliderConfig: {
-      s1: { label: 'Squat Depth',  value: 62, min: 45, max: 85 },
-      s2: { label: 'Stand Height', value: 47, min: 25, max: 60 },
+      s1: { label: 'Parallel Depth', value: 52, min: 48, max: 65 },
+      s2: { label: 'Stand Return',   value: 38, min: 25, max: 48 },
     },
   },
   pushup: {
