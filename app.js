@@ -531,11 +531,27 @@ pose.onResults(onPoseResults);
 // ── Camera with facing mode support ─────────────────────────
 let facingMode = 'user'; // 'user' = front, 'environment' = back
 let activeCamera = null;
+let cameraStarted = false;
 
-function startCamera() {
+async function startCamera() {
   if (activeCamera) {
     activeCamera.stop();
     activeCamera = null;
+  }
+
+  phaseBadge.textContent = 'STARTING CAMERA...';
+
+  // Explicitly request permission first so mobile browsers show the prompt
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+    stream.getTracks().forEach(t => t.stop()); // release — MediaPipe will reacquire
+  } catch (err) {
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      phaseBadge.textContent = 'CAMERA BLOCKED — ALLOW IN BROWSER/PHONE SETTINGS THEN RELOAD';
+    } else {
+      phaseBadge.textContent = 'NO CAMERA FOUND — CHECK DEVICE';
+    }
+    return;
   }
 
   activeCamera = new Camera(videoEl, {
@@ -546,16 +562,27 @@ function startCamera() {
   });
 
   activeCamera.start()
-    .then(() => { phaseBadge.textContent = 'READY — PRESS START'; })
-    .catch(() => { phaseBadge.textContent = 'CAMERA ERROR — CHECK PERMISSIONS'; });
+    .then(() => {
+      cameraStarted = true;
+      phaseBadge.textContent = 'READY — PRESS START';
+    })
+    .catch(() => { phaseBadge.textContent = 'CAMERA ERROR — TRY RELOADING'; });
 }
 
-startCamera();
+// Don't auto-start — wait for a tap so mobile browsers allow the permission prompt
+phaseBadge.textContent = 'TAP HERE TO ENABLE CAMERA';
+phaseBadge.style.cursor = 'pointer';
+phaseBadge.addEventListener('click', () => {
+  if (cameraStarted) return;
+  phaseBadge.style.cursor = '';
+  startCamera();
+}, { once: true });
 
 document.getElementById('camToggleBtn').addEventListener('click', () => {
   facingMode = facingMode === 'user' ? 'environment' : 'user';
   document.getElementById('camToggleBtn').textContent =
     facingMode === 'user' ? 'Flip Camera' : 'Front Camera';
+  cameraStarted = false;
   startCamera();
 });
 
