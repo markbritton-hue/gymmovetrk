@@ -56,13 +56,13 @@ const DEFAULTS = {
     name: 'Overhead Press',
     labels: {
       ready:  'WEIGHT DOWN — PRESS UP!',
-      active: 'LOCKED OUT — HOLD IT!',
+      active: 'LOCKED OUT OVERHEAD!',
       rep:    'REP! LOWER DOWN!',
       noBody: 'CAMERA NEEDS FRONT/SIDE VIEW',
     },
     sliderConfig: {
-      s1: { label: 'Overhead Height', value: 22, min: 5,  max: 35 },
-      s2: { label: 'Lower Return',    value: 52, min: 35, max: 75 },
+      s1: { label: 'Overhead Lock-out', value: 18, min: 10, max: 40 },
+      s2: { label: 'Lower Return',      value: 5,  min: 0,  max: 15 },
     },
   },
   stepup: {
