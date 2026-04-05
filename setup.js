@@ -52,9 +52,22 @@ const DEFAULTS = {
       s2: { label: 'Lie-down Level', value: 58, min: 40, max: 80 },
     },
   },
+  stepup: {
+    name: 'Box Step-ups',
+    labels: {
+      ready:  'STAND — STEP UP!',
+      active: 'UP ON BOX — STAND TALL!',
+      rep:    'REP! STEP BACK DOWN!',
+      noBody: 'CAMERA NEEDS SIDE VIEW — FULL BODY',
+    },
+    sliderConfig: {
+      s1: { label: 'On-box Height', value: 44, min: 25, max: 55 },
+      s2: { label: 'Return Level',  value: 56, min: 45, max: 70 },
+    },
+  },
 };
 
-const MOVEMENT_KEYS = ['burpee', 'squat', 'pushup', 'situp'];
+const MOVEMENT_KEYS = ['burpee', 'squat', 'pushup', 'situp', 'stepup'];
 
 // ── LocalStorage helpers ──────────────────────────────────────
 function loadSettings() {
