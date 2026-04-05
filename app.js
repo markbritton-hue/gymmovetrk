@@ -435,6 +435,20 @@ function startRecording() {
     function drawComposite() {
       compositeCtx.drawImage(videoEl,    0, 0, w, h);
       compositeCtx.drawImage(poseCanvas, 0, 0, w, h);
+
+      // Rep count overlay
+      const label = `${currentMovement.labels.rep.replace(/!.*/, '').trim() || currentMovementKey} × ${repCount}`;
+      const fontSize = Math.round(h * 0.07);
+      compositeCtx.font         = `bold ${fontSize}px sans-serif`;
+      compositeCtx.textBaseline = 'top';
+      compositeCtx.textAlign    = 'left';
+      const pad = Math.round(h * 0.02);
+      const metrics = compositeCtx.measureText(label);
+      compositeCtx.fillStyle = 'rgba(0,0,0,0.45)';
+      compositeCtx.fillRect(pad - 6, pad - 4, metrics.width + 12, fontSize + 8);
+      compositeCtx.fillStyle = '#ffffff';
+      compositeCtx.fillText(label, pad, pad);
+
       compositeRAF = requestAnimationFrame(drawComposite);
     }
     drawComposite();
