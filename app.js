@@ -80,6 +80,31 @@ const MOVEMENTS = {
     },
   },
 
+  stepup: {
+    name: 'Box Step-ups',
+    paceUnit: 'STEP-UPS / MIN',
+    // Metric: the higher of the two ankles (lower Y = higher on screen).
+    // On ground: both ankles near 0.85+. Stepped up: lead ankle rises to ~0.60–0.65.
+    getMetric: (lm) => Math.min(lm[27].y, lm[28].y),
+    activeThreshold: 0.65,
+    neutralThreshold: 0.78,
+    metricDir: 'low',
+    checkVisibility: (lm) =>
+      lm[23].visibility > 0.5 && lm[24].visibility > 0.5 &&
+      lm[27].visibility > 0.5 && lm[28].visibility > 0.5,
+    highlightJoints: [23, 24, 25, 26, 27, 28],
+    labels: {
+      ready:   'STAND — STEP UP!',
+      active:  'UP ON BOX — STAND TALL!',
+      rep:     'REP! STEP BACK DOWN!',
+      noBody:  'CAMERA NEEDS SIDE VIEW — FULL BODY',
+    },
+    sliderConfig: {
+      s1: { min: 45, max: 80, value: 65, label: 'Step-up Height' },
+      s2: { min: 65, max: 90, value: 78, label: 'Return Level'   },
+    },
+  },
+
   situp: {
     name: 'Sit-ups',
     paceUnit: 'SIT-UPS / MIN',
