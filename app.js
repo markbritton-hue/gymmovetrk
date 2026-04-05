@@ -83,26 +83,31 @@ const MOVEMENTS = {
   overhead: {
     name: 'Overhead Press',
     paceUnit: 'OVERHEAD / MIN',
-    // Metric: the higher of the two wrists (lower Y = higher on screen).
-    // Bottom position: wrists ~0.75–0.85 (near floor). Overhead: wrist ~0.10–0.20.
-    // metricDir 'low': metric goes LOW when arm is locked out overhead.
-    getMetric: (lm) => Math.min(lm[15].y, lm[16].y),
-    activeThreshold: 0.22,
-    neutralThreshold: 0.52,
-    metricDir: 'low',
+    // Metric: how far the highest wrist is ABOVE the highest shoulder (shoulder Y - wrist Y).
+    // Positive = wrist is above shoulder = weight is overhead.
+    // Arms at side: ~0.0 or negative. Fully locked out overhead: ~0.20–0.35.
+    // metricDir 'high': metric goes HIGH when dumbbell is locked out overhead.
+    getMetric: (lm) => {
+      const shoulderY = Math.min(lm[11].y, lm[12].y);
+      const wristY    = Math.min(lm[15].y, lm[16].y);
+      return shoulderY - wristY;
+    },
+    activeThreshold: 0.18,
+    neutralThreshold: 0.05,
+    metricDir: 'high',
     checkVisibility: (lm) =>
       lm[11].visibility > 0.5 && lm[12].visibility > 0.5 &&
       (lm[15].visibility > 0.5 || lm[16].visibility > 0.5),
     highlightJoints: [11, 12, 13, 14, 15, 16],
     labels: {
       ready:   'WEIGHT DOWN — PRESS UP!',
-      active:  'LOCKED OUT — HOLD IT!',
+      active:  'LOCKED OUT OVERHEAD!',
       rep:     'REP! LOWER DOWN!',
       noBody:  'CAMERA NEEDS FRONT/SIDE VIEW',
     },
     sliderConfig: {
-      s1: { min: 5,  max: 35, value: 22, label: 'Overhead Height' },
-      s2: { min: 35, max: 75, value: 52, label: 'Lower Return'    },
+      s1: { min: 10, max: 40, value: 18, label: 'Overhead Lock-out' },
+      s2: { min: 0,  max: 15, value: 5,  label: 'Lower Return'      },
     },
   },
 
