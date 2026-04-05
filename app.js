@@ -663,34 +663,3 @@ function onPoseResults(results) {
     }
   }
 }
-
-// ── Watch Screen ─────────────────────────────────────────────
-const watchOverlay  = document.getElementById('watchOverlay');
-const watchCountEl  = document.getElementById('watchCount');
-const watchTimeEl   = document.getElementById('watchTime');
-const watchMovEl    = document.getElementById('watchMovement');
-let watchRAF        = null;
-
-function updateWatchFace() {
-  watchCountEl.textContent = repCount;
-  watchTimeEl.textContent  = timerEl.textContent;
-  watchMovEl.textContent   = document.getElementById('headerSubtitle').textContent || currentMovementKey;
-  watchRAF = requestAnimationFrame(updateWatchFace);
-}
-
-document.getElementById('watchBtn').addEventListener('click', () => {
-  watchOverlay.classList.add('open');
-  updateWatchFace();
-});
-
-document.getElementById('watchCloseBtn').addEventListener('click', () => {
-  watchOverlay.classList.remove('open');
-  cancelAnimationFrame(watchRAF);
-});
-
-watchOverlay.addEventListener('click', e => {
-  if (e.target === watchOverlay) {
-    watchOverlay.classList.remove('open');
-    cancelAnimationFrame(watchRAF);
-  }
-});
