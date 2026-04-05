@@ -80,6 +80,32 @@ const MOVEMENTS = {
     },
   },
 
+  overhead: {
+    name: 'Overhead Press',
+    paceUnit: 'OVERHEAD / MIN',
+    // Metric: the higher of the two wrists (lower Y = higher on screen).
+    // Bottom position: wrists ~0.75–0.85 (near floor). Overhead: wrist ~0.10–0.20.
+    // metricDir 'low': metric goes LOW when arm is locked out overhead.
+    getMetric: (lm) => Math.min(lm[15].y, lm[16].y),
+    activeThreshold: 0.22,
+    neutralThreshold: 0.52,
+    metricDir: 'low',
+    checkVisibility: (lm) =>
+      lm[11].visibility > 0.5 && lm[12].visibility > 0.5 &&
+      (lm[15].visibility > 0.5 || lm[16].visibility > 0.5),
+    highlightJoints: [11, 12, 13, 14, 15, 16],
+    labels: {
+      ready:   'WEIGHT DOWN — PRESS UP!',
+      active:  'LOCKED OUT — HOLD IT!',
+      rep:     'REP! LOWER DOWN!',
+      noBody:  'CAMERA NEEDS FRONT/SIDE VIEW',
+    },
+    sliderConfig: {
+      s1: { min: 5,  max: 35, value: 22, label: 'Overhead Height' },
+      s2: { min: 35, max: 75, value: 52, label: 'Lower Return'    },
+    },
+  },
+
   stepup: {
     name: 'Box Step-ups',
     paceUnit: 'STEP-UPS / MIN',

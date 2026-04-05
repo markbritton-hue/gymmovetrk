@@ -52,6 +52,19 @@ const DEFAULTS = {
       s2: { label: 'Lie-down Level', value: 58, min: 40, max: 80 },
     },
   },
+  overhead: {
+    name: 'Overhead Press',
+    labels: {
+      ready:  'WEIGHT DOWN — PRESS UP!',
+      active: 'LOCKED OUT — HOLD IT!',
+      rep:    'REP! LOWER DOWN!',
+      noBody: 'CAMERA NEEDS FRONT/SIDE VIEW',
+    },
+    sliderConfig: {
+      s1: { label: 'Overhead Height', value: 22, min: 5,  max: 35 },
+      s2: { label: 'Lower Return',    value: 52, min: 35, max: 75 },
+    },
+  },
   stepup: {
     name: 'Box Step-ups',
     labels: {
@@ -67,7 +80,7 @@ const DEFAULTS = {
   },
 };
 
-const MOVEMENT_KEYS = ['burpee', 'squat', 'pushup', 'situp', 'stepup'];
+const MOVEMENT_KEYS = ['burpee', 'squat', 'pushup', 'situp', 'overhead', 'stepup'];
 
 // ── LocalStorage helpers ──────────────────────────────────────
 function loadSettings() {
