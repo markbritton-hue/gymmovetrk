@@ -181,6 +181,21 @@ const MOVEMENTS = {
 // ── Constants ──────────────────────────────────────────────
 const MILESTONES = [10, 25, 50, 100, 200];
 
+// ── Audio ────────────────────────────────────────────────────
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function beep() {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type = 'sine';
+  osc.frequency.value = 880;
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.15);
+}
+
 // ── State ───────────────────────────────────────────────────
 let currentMovementKey = 'burpee';
 let currentMovement    = MOVEMENTS.burpee;
@@ -350,6 +365,7 @@ function resetSession() {
 function addRep() {
   repCount++;
   lastRepTime = Date.now();
+  beep();
   updateRepUI();
   flashCard();
   checkMilestone();
