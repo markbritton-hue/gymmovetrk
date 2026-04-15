@@ -217,13 +217,10 @@ const repCard       = document.getElementById('repCard');
 const headerSubtitle = document.getElementById('headerSubtitle');
 
 // ── Movement Selection ───────────────────────────────────────
-document.querySelectorAll('.move-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (sessionActive) return; // lock during session
-    document.querySelectorAll('.move-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectMovement(btn.dataset.move);
-  });
+const movementSelect = document.getElementById('movementSelect');
+movementSelect.addEventListener('change', () => {
+  if (sessionActive) return;
+  selectMovement(movementSelect.value);
 });
 
 function selectMovement(key) {
@@ -287,12 +284,6 @@ document.getElementById('resetThreshBtn').addEventListener('click', () => {
   updateSliderDisplays();
 });
 
-// Sync movement bar button text with (possibly overridden) names
-document.querySelectorAll('.move-btn').forEach(btn => {
-  const m = MOVEMENTS[btn.dataset.move];
-  if (m) btn.querySelector('.move-name').textContent = m.name;
-});
-
 // Init with burpee
 selectMovement('burpee');
 
@@ -324,7 +315,7 @@ function startSession() {
   document.getElementById('startBtn').disabled  = true;
   document.getElementById('stopBtn').disabled   = false;
   document.getElementById('resetBtn').disabled  = true;
-  document.querySelectorAll('.move-btn').forEach(b => b.disabled = true);
+  movementSelect.disabled = true;
 
   phaseBadge.textContent = currentMovement.labels.ready;
 }
@@ -340,7 +331,7 @@ function stopSession() {
   document.getElementById('startBtn').disabled  = false;
   document.getElementById('stopBtn').disabled   = true;
   document.getElementById('resetBtn').disabled  = false;
-  document.querySelectorAll('.move-btn').forEach(b => b.disabled = false);
+  movementSelect.disabled = false;
 
   phaseBadge.textContent = 'SESSION ENDED';
 }

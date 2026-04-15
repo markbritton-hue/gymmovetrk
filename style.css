@@ -76,55 +76,36 @@ header .subtitle {
 /* ── Movement Selector ── */
 .movement-bar {
   display: flex;
-  gap: 10px;
-  padding: 14px 24px;
+  align-items: center;
+  padding: 12px 24px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   width: 100%;
-  flex-wrap: wrap;
 }
 
-.move-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 20px;
+.movement-select {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  color: var(--muted);
-  font-family: 'Rajdhani', sans-serif;
-}
-
-.move-btn:hover:not(:disabled) {
-  border-color: var(--accent);
   color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: auto;
 }
 
-.move-btn.active {
+.movement-select:focus {
+  outline: none;
   border-color: var(--accent);
-  background: rgba(255,69,0,0.12);
-  color: var(--accent);
 }
 
-.move-btn:disabled {
+.movement-select:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-.move-icon {
-  font-size: 1.4rem;
-  line-height: 1;
-}
-
-.move-name {
-  font-size: 0.7rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  font-weight: 600;
 }
 
 /* ── Camera Panel ── */
@@ -506,19 +487,11 @@ header .subtitle {
 
   .movement-bar {
     padding: 10px 12px;
-    gap: 8px;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
   }
 
-  .move-btn {
-    flex-shrink: 0;
-    padding: 8px 14px;
+  .movement-select {
+    font-size: 0.9rem;
   }
-
-  .move-icon { font-size: 1.2rem; }
-  .move-name { font-size: 0.65rem; }
 
   .main {
     flex-direction: column;
